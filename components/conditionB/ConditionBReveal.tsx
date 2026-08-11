@@ -5,6 +5,7 @@ import { CONDITION_B_STAGE_CONTENT } from "@/content/placeholder-stimuli";
 import { ReadOnlyOutput } from "@/components/task/ReadOnlyOutput";
 import { Button } from "@/components/ui/Button";
 import type { RevealProps } from "@/components/task/types";
+import { useTelemetry } from "@/lib/telemetry/TelemetryProvider";
 
 /**
  * Condition B - High-Agency Collaborator reveal.
@@ -25,6 +26,7 @@ import type { RevealProps } from "@/components/task/types";
  * is the brief Submit. (If a fifth confirm click is wanted, add it here.)
  */
 export function ConditionBReveal({ started, onOutputVisible }: RevealProps) {
+  const session = useTelemetry();
   const [stageIndex, setStageIndex] = useState(0);
   const firedRef = useRef(false);
 
@@ -63,7 +65,12 @@ export function ConditionBReveal({ started, onOutputVisible }: RevealProps) {
         <div className="flex justify-end">
           <Button
             mandatory
-            onClick={() => setStageIndex((i) => Math.min(i + 1, total - 1))}
+            onClick={() => {
+              // Record the V&P time for the D3 exclusion (insurance; the final 3s
+              // window should never contain one by construction).
+              session.recordVerifyProceed(session.clock.now());
+              setStageIndex((i) => Math.min(i + 1, total - 1));
+            }}
           >
             Verify &amp; Proceed &rarr;
           </Button>

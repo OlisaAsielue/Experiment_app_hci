@@ -48,6 +48,8 @@ export class TelemetrySession {
   // Stream 3 - cursor samples (tortuosity, D3). Rolling buffer, last ~CURSOR_BUFFER_MS.
   readonly cursorBuffer: CursorSample[] = [];
   tortuosity: number | null = null;
+  /** Verify & Proceed click times (Condition B). Used only for the D3 exclusion. */
+  readonly verifyProceedAt: number[] = [];
 
   // Stream 4 - NPOIL timing.
   outputVisibleAt: number | null = null;
@@ -110,7 +112,7 @@ export class TelemetrySession {
     this.editingEvents.push(event);
   }
 
-  // --- Stream 3: cursor samples (used when that module is built) --------------
+  // --- Stream 3: cursor samples + tortuosity ---------------------------------
   pushCursorSample(sample: CursorSample): void {
     this.cursorBuffer.push(sample);
     const cutoff = sample.at - CURSOR_BUFFER_MS;
@@ -118,5 +120,15 @@ export class TelemetrySession {
     while (this.cursorBuffer.length && this.cursorBuffer[0].at < cutoff) {
       this.cursorBuffer.shift();
     }
+  }
+
+  /** Record a Verify & Proceed click time (Condition B stage boundary). */
+  recordVerifyProceed(at: number): void {
+    this.verifyProceedAt.push(at);
+  }
+
+  /** Store the tortuosity computed once at final Submit (may be null; see D3 guards). */
+  setTortuosity(value: number | null): void {
+    this.tortuosity = value;
   }
 }

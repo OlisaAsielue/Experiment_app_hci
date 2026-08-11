@@ -17,6 +17,8 @@ import { computeNpoilMs, type CalibrationResult } from "@/lib/telemetry/npoil";
 import { useTelemetry } from "@/lib/telemetry/TelemetryProvider";
 import { useInteractionStateMachine } from "@/lib/telemetry/useInteractionStateMachine";
 import { useEditingEvents } from "@/lib/telemetry/useEditingEvents";
+import { useCursorBuffer } from "@/lib/telemetry/useCursorBuffer";
+import { computeTortuosity } from "@/lib/telemetry/tortuosity";
 
 /**
  * TaskScreen - the shared task surface for BOTH conditions.
@@ -65,6 +67,8 @@ export function TaskScreen({
   useInteractionStateMachine();
   // Stream 2 (volatility): classify edits in the response field.
   useEditingEvents();
+  // Stream 3 (tortuosity): sample the cursor into the rolling buffer.
+  useCursorBuffer();
 
   const [phase, setPhase] = useState<Phase>("command");
   const [command, setCommand] = useState(DEFAULT_COMMAND);
@@ -114,10 +118,24 @@ export function TaskScreen({
         : null;
     // Consolidate NPOIL timing onto the shared session (stream 4).
     session.recordSubmission(submittedAt, npoilMs);
+
+    // Stream 3 (tortuosity, D3): computed ONCE here, on final Submit only. The V&P
+    // exclusion is passed as insurance (expected empty in the final 3s window).
+    const tortuosity = computeTortuosity({
+      samples: session.cursorBuffer,
+      submitAt: submittedAt,
+      excludeTimestamps: session.verifyProceedAt,
+    });
+    session.setTortuosity(tortuosity);
+
     console.log("[task] submitted", {
       ...data,
       rawPauseMs,
       npoilMs,
+      tortuosity,
+      correctiveEdits: session.editingEvents.filter((e) => e.type === "corrective")
+        .length,
+      stateTransitions: session.stateLog.length,
       readingVelocityMsPerWord: calibration?.readingVelocityMsPerWord ?? null,
       outputWordCount: AI_OUTPUT_WORD_COUNT,
     });
