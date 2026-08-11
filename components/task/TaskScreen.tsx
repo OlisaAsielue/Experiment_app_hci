@@ -32,25 +32,18 @@ import { persistEvent } from "@/lib/persist/sendEvent";
  * output-reveal to a condition-specific `reveal` render-prop, which is the ONLY part
  * that differs between A and B. The bottom input runs a small phase machine that is
  * identical across conditions:
- *   command   → participant types/sends one command
- *   generating→ the reveal is playing; input disabled
- *   output    → participant writes their verified summary brief, then submits
- *   done      → confirmation (Step-3 placeholder; later this hands off to NASA-TLX)
+ *   command    -> participant types/sends one command
+ *   generating -> the reveal is playing; input disabled
+ *   output     -> participant writes their verified summary brief, then submits
+ *   done       -> brief submitted; onFinish advances the flow to NASA-TLX
  *
- * Timestamps captured here (outputVisibleAt, submittedAt) feed NPOIL once telemetry
- * is wired in Step 6. For now they are reported via onFinish / logged.
+ * On submit, all four telemetry streams are computed/consolidated onto the shared
+ * session and the run's rows are persisted (a no-op unless PERSIST_DATA is on).
  */
 type Phase = "command" | "generating" | "output" | "done";
 
 const DEFAULT_COMMAND =
   "Synthesise the four source excerpts into a short, verified summary brief.";
-
-export interface TaskFinishData {
-  condition: Condition;
-  outputVisibleAt: number | null;
-  submittedAt: number;
-  responseText: string;
-}
 
 export function TaskScreen({
   condition,
@@ -65,7 +58,8 @@ export function TaskScreen({
   /** Baseline reading velocity from the calibration phase; needed to compute NPOIL. */
   calibration?: CalibrationResult | null;
   onRestart?: () => void;
-  onFinish?: (data: TaskFinishData) => void;
+  /** Called once the brief is submitted and all streams are persisted. */
+  onFinish?: () => void;
 }) {
   const session = useTelemetry();
   // Stream 1 (entropy): run the interaction-state machine for the task's lifetime.
@@ -100,15 +94,9 @@ export function TaskScreen({
 
   function submit() {
     const submittedAt = session.clock.now();
-    const data: TaskFinishData = {
-      condition,
-      outputVisibleAt: outputVisibleAtRef.current,
-      submittedAt,
-      responseText: response,
-    };
 
     // Compute + store ALL stream values on the session BEFORE onFinish, so anything
-    // onFinish triggers (e.g. the reveal) reads a fully-populated session.
+    // downstream (e.g. the reveal) reads a fully-populated session.
     const rawPauseMs =
       outputVisibleAtRef.current != null
         ? submittedAt - outputVisibleAtRef.current
@@ -124,9 +112,9 @@ export function TaskScreen({
     // Consolidate NPOIL timing onto the shared session (stream 4).
     session.recordSubmission(submittedAt, npoilMs);
 
-    // Stream 3 (tortuosity, D3): computed ONCE here, on final Submit only. Slice the
-    // window ONCE and store it, so the demo cursor-path sketch renders from exactly the
-    // same samples the number was scored over. V&P exclusion passed as insurance.
+    // Tortuosity: computed ONCE here, on final Submit only. Slice the window ONCE and
+    // store it, so the demo cursor-path sketch renders from exactly the same samples
+    // the number was scored over. V&P exclusion passed as insurance.
     const win = tortuosityWindow({
       samples: session.cursorBuffer,
       submitAt: submittedAt,
@@ -136,8 +124,9 @@ export function TaskScreen({
     session.setTortuosity(tortuosity);
     session.setTortuosityWindow(win);
 
-    // D5b live activity-switching estimate, over the SAME post-output window the other
-    // values use (outputVisibleAt -> submit). Its own function; never the A.2 entropy.
+    // Live activity-switching estimate for the demo reveal, over the SAME post-output
+    // window the other values use (outputVisibleAt -> submit). Its own function; this
+    // is never the real offline entropy rate.
     if (outputVisibleAtRef.current != null) {
       session.setLiveEntropyEstimate(
         computeLiveActivitySwitching(
@@ -148,27 +137,17 @@ export function TaskScreen({
       );
     }
 
-    console.log("[task] submitted", {
-      ...data,
-      rawPauseMs,
-      npoilMs,
-      tortuosity,
-      correctiveEdits: session.editingEvents.filter((e) => e.type === "corrective")
-        .length,
-      stateTransitions: session.stateLog.length,
-      readingVelocityMsPerWord: calibration?.readingVelocityMsPerWord ?? null,
-      outputWordCount: AI_OUTPUT_WORD_COUNT,
-    });
-
     // Fire-and-forget persistence of everything gathered this run. Each call is a
     // no-op server-side unless PERSIST_DATA is on (lib/flags.ts); the demo's
-    // behaviour here is identical whether the flag is on or off.
+    // behaviour here is identical whether the flag is on or off. response_text is the
+    // participant's own written brief, retained as their primary work product.
     persistEvent("task_events", {
       session_code: session.sessionCode,
       output_word_count: AI_OUTPUT_WORD_COUNT,
       output_visible_at_ms: outputVisibleAtRef.current,
       submitted_at_ms: submittedAt,
       npoil_ms: npoilMs,
+      response_text: response,
     });
     persistEvent(
       "interaction_state_log",
@@ -200,7 +179,7 @@ export function TaskScreen({
     );
 
     setPhase("done");
-    onFinish?.(data); // last: the session is fully populated by this point.
+    onFinish?.(); // last: the session is fully populated by this point.
   }
 
   const statusSlot = onRestart ? (

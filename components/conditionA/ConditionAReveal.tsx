@@ -14,7 +14,7 @@ import { ReadOnlyOutput } from "@/components/task/ReadOnlyOutput";
  *
  * The output container is read-only and given a subtle shade (not the editable
  * white of the response field) - enough to signal "display, not yours to edit"
- * without a loud lock affordance (see decisions.md Decision 4).
+ * without a loud lock affordance.
  *
  * Calls onOutputVisible() exactly once, when the full output first appears
  * (the NPOIL start point for Condition A).

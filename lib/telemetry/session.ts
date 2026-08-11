@@ -20,7 +20,7 @@ export const CURSOR_BUFFER_MS = 4000;
  * (TelemetryProvider) hands the instance to the tree. Held for the whole run
  * (calibration through submit).
  *
- * D5 is enforced structurally here: `stateLog` (raw transitions, the input to the
+ * The two-computation separation is enforced structurally here: `stateLog` (raw
  * REAL offline Shannon entropy) and `liveEntropyEstimate` (the demo-only estimate)
  * are SEPARATE fields, populated by separate code paths - never one derived from the
  * other's function, so a discrepancy between them stays visible.
@@ -31,18 +31,18 @@ export class TelemetrySession {
   condition: Condition | null = null;
   calibration: CalibrationResult | null = null;
 
-  // Stream 1 - interaction states (entropy). Raw, correctly-precedenced (D1, D5a).
+  // Stream 1 - interaction states (entropy). Raw, correctly-precedenced.
   readonly stateLog: StateTransition[] = [];
 
-  // Stream 2 - editing events (volatility, D4).
+  // Stream 2 - editing events (volatility).
   readonly editingEvents: EditingEvent[] = [];
 
-  // Stream 3 - cursor samples (tortuosity, D3). Rolling buffer, last ~CURSOR_BUFFER_MS.
+  // Stream 3 - cursor samples (tortuosity). Rolling buffer, last ~CURSOR_BUFFER_MS.
   readonly cursorBuffer: CursorSample[] = [];
   tortuosity: number | null = null;
   /** Exact window tortuosity scored, snapshotted at submit (for the matching sketch). */
   tortuosityWindow: CursorSample[] | null = null;
-  /** Verify & Proceed click times (Condition B). Used only for the D3 exclusion. */
+  /** Verify & Proceed click times (Condition B). Used only for the tortuosity V&P exclusion. */
   readonly verifyProceedAt: number[] = [];
 
   // Stream 4 - NPOIL timing.
@@ -50,7 +50,7 @@ export class TelemetrySession {
   submittedAt: number | null = null;
   npoilMs: number | null = null;
 
-  // D5b - demo-only live activity-switching estimate, set at submit by its own
+  // Demo-only live activity-switching estimate, set at submit by its own
   // function (liveEntropy.ts). Kept structurally separate from stateLog.
   liveEntropyEstimate: LiveActivitySwitching | null = null;
 
@@ -122,7 +122,7 @@ export class TelemetrySession {
     this.verifyProceedAt.push(at);
   }
 
-  /** Store the tortuosity computed once at final Submit (may be null; see D3 guards). */
+  /** Store the tortuosity computed once at final Submit (may be null; see tortuosity.ts guards). */
   setTortuosity(value: number | null): void {
     this.tortuosity = value;
   }
@@ -132,7 +132,7 @@ export class TelemetrySession {
     this.tortuosityWindow = win;
   }
 
-  /** Store the demo-only live activity-switching estimate (D5b). */
+  /** Store the demo-only live activity-switching estimate. */
   setLiveEntropyEstimate(estimate: LiveActivitySwitching): void {
     this.liveEntropyEstimate = estimate;
   }

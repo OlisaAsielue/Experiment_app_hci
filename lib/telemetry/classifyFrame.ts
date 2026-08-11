@@ -1,15 +1,15 @@
 import type { InteractionState } from "./types";
 
 /**
- * Pure per-frame interaction-state classifier (Appendix A.1, D1 & D2).
+ * Pure per-frame interaction-state classifier (Appendix A.1).
  *
  * Extracted from the rAF loop so the precedence + hit-test logic is unit-testable
  * without a running animation frame. Given the frame's inputs, returns exactly one
  * state, applying precedence Modifying > Confirming > Hovering > Idle.
  *
- * D1: Idle is the catch-all/rest state - returned whenever none of Modifying,
+ * Idle is the catch-all/rest state, returned whenever none of Modifying,
  *     Confirming, or Hovering trigger (a documented extension of Appendix A.1).
- * D2: Confirming is driven by the caller's `mandatoryRects` - which come from the
+ * Confirming is driven by the caller's `mandatoryRects`, which come from the
  *     single `[data-mandatory-click]` source of truth - plus a recent mandatory click.
  */
 
@@ -32,7 +32,7 @@ export interface FrameInputs {
   lastMandatoryClickAt: number;
   /** Bounds of the AI output container (Hovering target), or null if absent. */
   outputRect: Rect | null;
-  /** Bounds of every [data-mandatory-click] control (Confirming targets, D2). */
+  /** Bounds of every [data-mandatory-click] control (Confirming targets). */
   mandatoryRects: Rect[];
   /** How long after a keystroke the frame still counts as Modifying. */
   modifyingActiveMs: number;
@@ -48,7 +48,7 @@ export function classifyFrame(i: FrameInputs): InteractionState {
   // Modifying - active keystroke input in the response field (highest precedence).
   if (i.now - i.lastResponseKeystrokeAt < i.modifyingActiveMs) return "Modifying";
 
-  // Confirming - recent click on, or cursor within, a mandatory control (D2).
+  // Confirming - recent click on, or cursor within, a mandatory control.
   if (i.now - i.lastMandatoryClickAt < i.confirmingClickMs) return "Confirming";
   if (i.cursor) {
     for (const r of i.mandatoryRects) {
@@ -60,6 +60,6 @@ export function classifyFrame(i: FrameInputs): InteractionState {
     }
   }
 
-  // D1: catch-all rest state.
+  // Catch-all rest state.
   return "Idle";
 }

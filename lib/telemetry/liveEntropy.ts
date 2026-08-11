@@ -1,14 +1,14 @@
 import type { StateTransition } from "./types";
 
 /**
- * D5b - the DEMO-ONLY live "activity switching" estimate.
+ * The DEMO-ONLY live "activity switching" estimate.
  *
  * This is NOT the Interaction Entropy Rate. The real metric (Appendix A.2) is the
  * Shannon entropy of a first-order transition matrix weighted by the empirical
  * stationary distribution, computed OFFLINE from the raw stateLog. This function is a
  * deliberately simple, legible approximation for the funder-facing demo reveal only,
- * kept in its own module so it can never share a code path with the real calculation
- * (D5). On screen it must be labelled an estimate and never called "entropy rate".
+ * kept in its own module so it can never share a code path with the real calculation.
+ * On screen it must be labelled an estimate and never called "entropy rate".
  *
  * Formula: switches per second = (number of state changes whose entry falls in the
  * window) / (window length in seconds). A higher value means the participant moved

@@ -25,7 +25,7 @@
  * D3 - Cursor Trajectory Tortuosity is scoped to the 3s immediately preceding the
  *      FINAL Submit only (PRD §5.4). Its capture-and-compute trigger fires ONCE, on
  *      final Submit - never on Verify & Proceed or any other mandatory click.
- *      → implemented in cursorBuffer.ts (built later)
+ *      → implemented in useCursorBuffer.ts (sampling) + tortuosity.ts (L/D)
  *
  * D4 - Input & Editing Volatility classification (PRD §5.2): every backspace/delete is
  *      always corrective; a typed character is corrective iff it occurs within 5000ms
@@ -33,7 +33,7 @@
  *      yet recovered past its length immediately before that deletion - reverting to
  *      additive once length recovers past that point, until the next deletion. Mandatory
  *      clicks never count, regardless of timing.
- *      → implemented in editingEvents.ts (built later)
+ *      → implemented in editingEvents.ts
  *
  * D5 - Entropy has TWO separate computations kept visibly distinct in the store:
  *      (a) the raw, correctly-precedenced state-transition log (`stateLog`) - the input

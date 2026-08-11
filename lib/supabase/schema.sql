@@ -48,7 +48,11 @@ create table if not exists task_events (
   output_word_count integer not null,
   output_visible_at_ms double precision not null,
   submitted_at_ms double precision not null,
-  npoil_ms double precision
+  npoil_ms double precision,
+  -- The participant's own written summary brief, retained as their primary work
+  -- product (not itself a dependent variable, but useful for task-compliance and
+  -- any later qualitative analysis).
+  response_text text
 );
 
 create table if not exists interaction_state_log (

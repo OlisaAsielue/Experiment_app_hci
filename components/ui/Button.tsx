@@ -12,9 +12,9 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: Variant;
   /**
    * Marks this as a MANDATORY-click control (Send, Verify & Proceed, final Submit).
-   * Adds a `data-mandatory-click` attribute so telemetry (Step 6) can exclude these
+   * Adds a `data-mandatory-click` attribute so telemetry can exclude these
    * clicks from Input & Editing Volatility at the event-capture level - uniformly,
-   * with no per-control special-casing. See PRD §5.2 and decisions.md Decision 10.
+   * with no per-control special-casing (volatility exclusion, PRD §5.2).
    */
   mandatory?: boolean;
   children: ReactNode;

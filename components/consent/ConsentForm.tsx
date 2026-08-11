@@ -13,8 +13,8 @@ import { Button } from "@/components/ui/Button";
 
 /**
  * Consent Form (Appendix E). All 8 statements are INDIVIDUALLY tickable, never
- * collapsed into a single "select all" checkbox (PRD section 3 step 4 and
- * decisions.md Decision 5). Agree is disabled until every box is checked. Decline is
+ * collapsed into a single "select all" checkbox (PRD section 3 step 4). Agree is
+ * disabled until every box is checked. Decline is
  * always available, independent of how many boxes are ticked, so a participant who
  * will not tick all 8 has a real, working exit rather than a dead end.
  */

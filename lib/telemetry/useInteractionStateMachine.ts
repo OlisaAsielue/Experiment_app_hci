@@ -11,21 +11,21 @@ import { classifyFrame, type Rect } from "./classifyFrame";
  * into one of the four states by precedence Modifying > Confirming > Hovering > Idle,
  * and writes a clean state-transition sequence to the shared session (session.stateLog).
  * The real Shannon entropy-rate calculation runs OFFLINE from this log (Appendix A.2);
- * this module only produces the correctly-precedenced sequence (D5a).
+ * this module only produces the correctly-precedenced sequence.
  *
- * D1 (catch-all): Idle is the DEFAULT/REST state - any frame where none of Modifying,
+ * Idle is the catch-all/rest state: any frame where none of Modifying,
  * Confirming, or Hovering trigger is Idle. Appendix A.1's 2000ms rule is the formal
  * definition of sustained inactivity / re-entering Idle after defined activity; using
  * Idle as the general rest state (e.g. cursor drifting in blank space before the 2000ms
  * threshold) is a minor, DOCUMENTED extension of Appendix A.1, not something it states.
  *
- * D2 (single source of truth): the Confirming hit-test reuses the SAME
+ * Single source of truth: the Confirming hit-test reuses the SAME
  * `[data-mandatory-click]` tagging used for volatility exclusion - there is no second
  * list of "which elements count as a submission/proceed control".
  *
  * Element hooks (queried live each frame so phase changes are picked up):
  *  - Hovering   → `[data-output-container]` (the AI output region of the shell)
- *  - Confirming → `[data-mandatory-click]`  (Send / Verify & Proceed / Submit) - D2
+ *  - Confirming → `[data-mandatory-click]`  (Send / Verify & Proceed / Submit)
  *  - Modifying  → keystrokes targeting `[data-response-field]` (the brief textarea)
  */
 
@@ -33,7 +33,7 @@ import { classifyFrame, type Rect } from "./classifyFrame";
 // during piloting, in the same spirit as Appendix A.3's note on the 2000ms threshold).
 const MODIFYING_ACTIVE_MS = 1000; // keep "Modifying" across normal inter-keystroke gaps
 const CONFIRMING_CLICK_MS = 400; // a click on a mandatory control reads as Confirming briefly
-// Appendix A.1's formal idle threshold - retained for documentation of D1.
+// Appendix A.1's formal idle threshold, retained for documentation.
 export const IDLE_THRESHOLD_MS = 2000;
 
 export function useInteractionStateMachine(): void {
@@ -53,7 +53,7 @@ export function useInteractionStateMachine(): void {
     };
     const onMouseDown = (e: MouseEvent) => {
       const target = e.target as Element | null;
-      // D2: a click on a mandatory control feeds Confirming (same tagging as exclusion).
+      // A click on a mandatory control feeds Confirming (same tagging as the volatility exclusion).
       if (target?.closest("[data-mandatory-click]")) {
         lastMandatoryClickAt = session.clock.now();
       }
@@ -73,7 +73,7 @@ export function useInteractionStateMachine(): void {
     const frame = () => {
       const now = session.clock.now();
 
-      // Gather this frame's DOM inputs. D2: mandatory controls come from the single
+      // Gather this frame's DOM inputs. Mandatory controls come from the single
       // [data-mandatory-click] source of truth (queried live so phase changes apply).
       const outputEl = document.querySelector("[data-output-container]");
       const mandatoryRects: Rect[] = [];

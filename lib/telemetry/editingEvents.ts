@@ -1,7 +1,7 @@
 import type { EditingEventType } from "./types";
 
 /**
- * Input & Editing Volatility classifier (D4, PRD section 5.2). Pure and
+ * Input & Editing Volatility classifier (PRD section 5.2). Pure and
  * unit-testable, mirroring classifyFrame for the state machine.
  *
  * The exact rule (code only, not in the paper):

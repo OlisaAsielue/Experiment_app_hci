@@ -50,6 +50,8 @@ export interface TaskEventRow {
   output_visible_at_ms: number;
   submitted_at_ms: number;
   npoil_ms: number | null;
+  /** The participant's own written summary brief (their primary work product). */
+  response_text: string;
 }
 
 export interface InteractionStateLogRow {
