@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/Button";
 import type { RevealProps } from "@/components/task/types";
 
 /**
- * Condition B — High-Agency Collaborator reveal.
+ * Condition B - High-Agency Collaborator reveal.
  *
  * The same fixed output is revealed across five sequential stages (source
  * extraction → thematic clustering → cross-source comparison → synthesis drafting →
@@ -20,7 +20,7 @@ import type { RevealProps } from "@/components/task/types";
  * (stage 5) is the complete synthesis, identical to the Condition A output, and is
  * rendered through the SHARED ReadOnlyOutput component so its shading exactly matches
  * Condition A. When the final stage first appears, onOutputVisible() fires once (the
- * NPOIL start point per PRD §5.1) and TaskScreen opens the brief-writing phase — the
+ * NPOIL start point per PRD §5.1) and TaskScreen opens the brief-writing phase - the
  * final stage itself has no Verify & Proceed; the participant's next mandatory action
  * is the brief Submit. (If a fifth confirm click is wanted, add it here.)
  */

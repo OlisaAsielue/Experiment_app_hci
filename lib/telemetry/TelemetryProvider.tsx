@@ -12,7 +12,7 @@ import { TelemetrySession } from "./session";
 const TelemetryContext = createContext<TelemetrySession | null>(null);
 
 /**
- * TelemetryProvider — creates ONE TelemetrySession for the whole run and hands it to
+ * TelemetryProvider - creates ONE TelemetrySession for the whole run and hands it to
  * the tree. Mount it around the run (calibration through submit) so every stream
  * shares one clock and one store. Created via a lazy useState initializer so the
  * instance (and its SessionClock t0) is stable across re-renders and made exactly once.

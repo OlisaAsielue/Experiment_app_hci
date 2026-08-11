@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 
 /**
- * ChatbotShell — THE single shared shell for both experimental conditions.
+ * ChatbotShell - THE single shared shell for both experimental conditions.
  *
  * HARD REQUIREMENT (PRD §2, §4): Condition A and Condition B must share ONE
  * identical shell. The only visible difference between conditions is what goes
@@ -23,7 +23,7 @@ export interface ChatbotShellProps {
   /** Optional right-aligned header content (e.g. a step/stage indicator). */
   statusSlot?: ReactNode;
   /**
-   * The AI output region — the ONLY part that differs between conditions.
+   * The AI output region - the ONLY part that differs between conditions.
    * Condition A: full read-only output at once. Condition B: staged reveal.
    */
   outputSlot: ReactNode;
@@ -43,7 +43,7 @@ export function ChatbotShell({
   return (
     <div className="mx-auto flex w-full max-w-3xl flex-1 flex-col px-4 py-6">
       <div className="flex flex-1 flex-col overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-sm">
-        {/* Header — neutral, no brand marks */}
+        {/* Header - neutral, no brand marks */}
         <header className="flex items-center justify-between border-b border-neutral-200 px-5 py-3">
           <div className="flex items-center gap-2.5">
             <span
@@ -59,7 +59,7 @@ export function ChatbotShell({
           ) : null}
         </header>
 
-        {/* AI output region — differs between conditions.
+        {/* AI output region - differs between conditions.
             data-output-container is the Hovering hit-test target (Appendix A.1); it is
             the same stable, condition-identical region in both A and B. */}
         <section
@@ -70,7 +70,7 @@ export function ChatbotShell({
           {outputSlot}
         </section>
 
-        {/* Participant response + actions — identical across conditions */}
+        {/* Participant response + actions - identical across conditions */}
         <footer className="border-t border-neutral-200 bg-neutral-50/60 px-5 py-4">
           {responseSlot}
           {actionsSlot ? (

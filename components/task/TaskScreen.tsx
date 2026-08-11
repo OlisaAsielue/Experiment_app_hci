@@ -18,7 +18,7 @@ import { useTelemetry } from "@/lib/telemetry/TelemetryProvider";
 import { useInteractionStateMachine } from "@/lib/telemetry/useInteractionStateMachine";
 
 /**
- * TaskScreen — the shared task surface for BOTH conditions.
+ * TaskScreen - the shared task surface for BOTH conditions.
  *
  * Owns the shell, the (shared) source panel, and the bottom input. It delegates the
  * output-reveal to a condition-specific `reveal` render-prop, which is the ONLY part
@@ -165,12 +165,12 @@ export function TaskScreen({
             Submitted ✓
           </span>
         ) : phase === "output" ? (
-          // Final brief submission — a MANDATORY click (excluded from volatility).
+          // Final brief submission - a MANDATORY click (excluded from volatility).
           <Button mandatory onClick={submit} disabled={!response.trim()}>
             Submit
           </Button>
         ) : (
-          // Initial "send one command" — a MANDATORY click (excluded from volatility).
+          // Initial "send one command" - a MANDATORY click (excluded from volatility).
           <Button
             mandatory
             onClick={send}

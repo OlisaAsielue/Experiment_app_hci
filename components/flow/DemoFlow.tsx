@@ -11,7 +11,7 @@ import type { CalibrationResult } from "@/lib/telemetry/npoil";
 import { TelemetryProvider } from "@/lib/telemetry/TelemetryProvider";
 
 /**
- * DemoFlow — client-side orchestrator for the /demo apparatus.
+ * DemoFlow - client-side orchestrator for the /demo apparatus.
  *
  * Steps so far: choose a condition → baseline calibration → run the task. Later
  * steps insert PIS → consent before calibration, and NASA-TLX → CIT → debrief →
@@ -88,7 +88,7 @@ function ConditionChoice({ onChoose }: { onChoose: (c: Condition) => void }) {
         <p className="mt-3 text-neutral-600">
           You&rsquo;ll do a short reading-and-writing task with a built-in AI
           assistant. There are two versions of the assistant. They give the{" "}
-          <em>same</em> answer &mdash; the only difference is how that answer is
+          <em>same</em> answer - the only difference is how that answer is
           revealed to you and what you&rsquo;re asked to do with it.
         </p>
 

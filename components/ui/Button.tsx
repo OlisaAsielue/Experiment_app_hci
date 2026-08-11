@@ -13,7 +13,7 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   /**
    * Marks this as a MANDATORY-click control (Send, Verify & Proceed, final Submit).
    * Adds a `data-mandatory-click` attribute so telemetry (Step 6) can exclude these
-   * clicks from Input & Editing Volatility at the event-capture level — uniformly,
+   * clicks from Input & Editing Volatility at the event-capture level - uniformly,
    * with no per-control special-casing. See PRD §5.2 and decisions.md Decision 10.
    */
   mandatory?: boolean;

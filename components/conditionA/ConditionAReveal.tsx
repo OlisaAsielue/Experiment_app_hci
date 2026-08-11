@@ -6,14 +6,14 @@ import type { RevealProps } from "@/components/task/types";
 import { ReadOnlyOutput } from "@/components/task/ReadOnlyOutput";
 
 /**
- * Condition A — Low-Agency Automation reveal.
+ * Condition A - Low-Agency Automation reveal.
  *
  * Flow: participant sends one command → a hidden "processing" sequence plays
  * (the disclosed deception: it simulates live generation but the output is
  * pre-written) → the FULL output appears at once in a read-only container.
  *
  * The output container is read-only and given a subtle shade (not the editable
- * white of the response field) — enough to signal "display, not yours to edit"
+ * white of the response field) - enough to signal "display, not yours to edit"
  * without a loud lock affordance (see decisions.md Decision 4).
  *
  * Calls onOutputVisible() exactly once, when the full output first appears

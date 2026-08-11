@@ -1,5 +1,5 @@
 /**
- * SessionClock — the single monotonic clock every telemetry stream timestamps
+ * SessionClock - the single monotonic clock every telemetry stream timestamps
  * against (PRD §5 cross-cutting: "All four streams must be timestamped against a
  * single session clock").
  *

@@ -20,15 +20,15 @@ import {
  * which normalises NPOIL later.
  *
  * TIMING RIGOUR: the start time is captured in a mount effect (fires right after the
- * abstract paints — the closest client-side proxy for "the abstract appears"); the
+ * abstract paints - the closest client-side proxy for "the abstract appears"); the
  * click time is performance.now() at the Continue handler. This is the same
- * disciplined timing the telemetry uses — calibration is a first-class measured step,
+ * disciplined timing the telemetry uses - calibration is a first-class measured step,
  * not an untracked lead-in.
  *
  * NOTE: the Continue button intentionally does NOT get `data-mandatory-click`. That
  * tag exists only to exclude clicks from Input & Editing Volatility, which is scoped
  * to the response field. Continue is outside the response field and irrelevant to
- * volatility, so tagging it would be wrong — but its timing is still captured rigorously.
+ * volatility, so tagging it would be wrong - but its timing is still captured rigorously.
  */
 export function Calibration({
   onComplete,

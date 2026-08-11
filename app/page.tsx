@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 /**
- * "/" — RWO funder explainer.
+ * "/" - RWO funder explainer.
  *
  * PLACEHOLDER holding page. The full explainer (copy from
  * docs/rwo-explainer-copy.md, via content/rwo-copy.ts) is built in Step 11.
@@ -17,7 +17,7 @@ export default function Home() {
         People are starting to trust AI without checking it.
       </h1>
       <p className="mt-4 text-lg leading-8 text-neutral-600">
-        This project measures the moment that happens &mdash; and tests a way to
+        This project measures the moment that happens - and tests a way to
         slow it down. The full explainer for this page is coming soon.
       </p>
       <div className="mt-8">

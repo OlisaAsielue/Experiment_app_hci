@@ -1,7 +1,7 @@
 import { PLACEHOLDER_TASK_SOURCES } from "@/content/placeholder-stimuli";
 
 /**
- * SourcePanel — the task's reference source material.
+ * SourcePanel - the task's reference source material.
  *
  * Rendered by the shared TaskScreen (NOT by either condition component), so both
  * conditions get identical access to the sources. Collapsible so it doesn't crowd

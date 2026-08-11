@@ -2,12 +2,12 @@ import type { ReactNode } from "react";
 import type { Condition } from "@/lib/types";
 
 /**
- * ReadOnlyOutput — the shaded, read-only container that displays the FINAL AI
+ * ReadOnlyOutput - the shaded, read-only container that displays the FINAL AI
  * synthesis.
  *
  * SHARED ON PURPOSE: both Condition A (full output at once) and Condition B (the
  * fifth/final stage) render the final synthesis through THIS one component, so the
- * shading and styling are guaranteed identical — there is no second set of style
+ * shading and styling are guaranteed identical - there is no second set of style
  * props that could quietly drift apart between the two conditions. If the look of
  * the read-only output needs to change, it changes here, for both conditions at once.
  *

@@ -1,5 +1,5 @@
 /**
- * NPOIL — Normalised Post-Output Inactivity Latency.
+ * NPOIL - Normalised Post-Output Inactivity Latency.
  *
  * Pure math, matching the paper (§4.6 / §5.1). Kept side-effect-free so it can be
  * unit-tested and reused by both the calibration phase and the task.
@@ -10,7 +10,7 @@
  *
  * Sign convention (paper): POSITIVE NPOIL = paused LONGER than reading speed
  * predicts (more evaluative processing). NEGATIVE NPOIL = moved on FASTER than
- * expected — a meaningful low-evaluation signal, NOT a data error. Callers must
+ * expected - a meaningful low-evaluation signal, NOT a data error. Callers must
  * preserve negatives, never clamp them.
  */
 

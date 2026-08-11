@@ -8,7 +8,7 @@ export const metadata: Metadata = {
 };
 
 /**
- * /demo — the bare apparatus entry point (PRD §1a). No academic framing here; this
+ * /demo - the bare apparatus entry point (PRD §1a). No academic framing here; this
  * is the instrument itself. The client-side DemoFlow orchestrates the steps.
  */
 export default function DemoPage() {

@@ -11,7 +11,7 @@ import type { CalibrationResult } from "./npoil";
 /** Rolling cursor buffer window (ms). Covers the 3s tortuosity window with headroom. */
 export const CURSOR_BUFFER_MS = 4000;
 
-/** A lightweight, DEMO-ONLY entropy estimate (D5) — NOT the offline Appendix A.2 calc. */
+/** A lightweight, DEMO-ONLY entropy estimate (D5) - NOT the offline Appendix A.2 calc. */
 export interface LiveEntropyEstimate {
   /** Proportion of observed state-time spent in each state (empirical π estimate). */
   stateProportions: Record<InteractionState, number>;
@@ -22,7 +22,7 @@ export interface LiveEntropyEstimate {
 }
 
 /**
- * TelemetrySession — the ONE place all four streams write to, sharing one clock.
+ * TelemetrySession - the ONE place all four streams write to, sharing one clock.
  *
  * Plain class (no React) so 60Hz writes never trigger re-renders; a React context
  * (TelemetryProvider) hands the instance to the tree. Held for the whole run
@@ -30,7 +30,7 @@ export interface LiveEntropyEstimate {
  *
  * D5 is enforced structurally here: `stateLog` (raw transitions, the input to the
  * REAL offline Shannon entropy) and `liveEntropyEstimate` (the demo-only estimate)
- * are SEPARATE fields, populated by separate code paths — never one derived from the
+ * are SEPARATE fields, populated by separate code paths - never one derived from the
  * other's function, so a discrepancy between them stays visible.
  */
 export class TelemetrySession {
@@ -39,22 +39,22 @@ export class TelemetrySession {
   condition: Condition | null = null;
   calibration: CalibrationResult | null = null;
 
-  // Stream 1 — interaction states (entropy). Raw, correctly-precedenced (D1, D5a).
+  // Stream 1 - interaction states (entropy). Raw, correctly-precedenced (D1, D5a).
   readonly stateLog: StateTransition[] = [];
 
-  // Stream 2 — editing events (volatility, D4).
+  // Stream 2 - editing events (volatility, D4).
   readonly editingEvents: EditingEvent[] = [];
 
-  // Stream 3 — cursor samples (tortuosity, D3). Rolling buffer, last ~CURSOR_BUFFER_MS.
+  // Stream 3 - cursor samples (tortuosity, D3). Rolling buffer, last ~CURSOR_BUFFER_MS.
   readonly cursorBuffer: CursorSample[] = [];
   tortuosity: number | null = null;
 
-  // Stream 4 — NPOIL timing.
+  // Stream 4 - NPOIL timing.
   outputVisibleAt: number | null = null;
   submittedAt: number | null = null;
   npoilMs: number | null = null;
 
-  // D5b — demo-only live entropy estimate, set at reveal time by its own function.
+  // D5b - demo-only live entropy estimate, set at reveal time by its own function.
   liveEntropyEstimate: LiveEntropyEstimate | null = null;
 
   constructor(sessionCode?: string) {
@@ -74,7 +74,7 @@ export class TelemetrySession {
   }
 
   // --- Stream 4: NPOIL timing ------------------------------------------------
-  /** NPOIL start point — output first fully visible (session-clock ms). */
+  /** NPOIL start point - output first fully visible (session-clock ms). */
   markOutputVisible(at: number): void {
     this.outputVisibleAt = at;
   }
@@ -93,7 +93,7 @@ export class TelemetrySession {
   recordState(state: InteractionState, at: number): void {
     const last = this.stateLog[this.stateLog.length - 1];
     if (last && last.exitedAt === null) {
-      if (last.state === state) return; // unchanged — nothing to record
+      if (last.state === state) return; // unchanged - nothing to record
       last.exitedAt = at;
     }
     this.stateLog.push({ state, enteredAt: at, exitedAt: null });

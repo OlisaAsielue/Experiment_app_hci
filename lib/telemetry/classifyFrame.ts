@@ -7,10 +7,10 @@ import type { InteractionState } from "./types";
  * without a running animation frame. Given the frame's inputs, returns exactly one
  * state, applying precedence Modifying > Confirming > Hovering > Idle.
  *
- * D1: Idle is the catch-all/rest state — returned whenever none of Modifying,
+ * D1: Idle is the catch-all/rest state - returned whenever none of Modifying,
  *     Confirming, or Hovering trigger (a documented extension of Appendix A.1).
- * D2: Confirming is driven by the caller's `mandatoryRects` — which come from the
- *     single `[data-mandatory-click]` source of truth — plus a recent mandatory click.
+ * D2: Confirming is driven by the caller's `mandatoryRects` - which come from the
+ *     single `[data-mandatory-click]` source of truth - plus a recent mandatory click.
  */
 
 /** Minimal rectangle shape (structurally compatible with DOMRect). */
@@ -45,16 +45,16 @@ export function pointInRect(x: number, y: number, r: Rect): boolean {
 }
 
 export function classifyFrame(i: FrameInputs): InteractionState {
-  // Modifying — active keystroke input in the response field (highest precedence).
+  // Modifying - active keystroke input in the response field (highest precedence).
   if (i.now - i.lastResponseKeystrokeAt < i.modifyingActiveMs) return "Modifying";
 
-  // Confirming — recent click on, or cursor within, a mandatory control (D2).
+  // Confirming - recent click on, or cursor within, a mandatory control (D2).
   if (i.now - i.lastMandatoryClickAt < i.confirmingClickMs) return "Confirming";
   if (i.cursor) {
     for (const r of i.mandatoryRects) {
       if (pointInRect(i.cursor.x, i.cursor.y, r)) return "Confirming";
     }
-    // Hovering — cursor within the AI output container.
+    // Hovering - cursor within the AI output container.
     if (i.outputRect && pointInRect(i.cursor.x, i.cursor.y, i.outputRect)) {
       return "Hovering";
     }
