@@ -9,6 +9,7 @@ import { ConditionAReveal } from "@/components/conditionA/ConditionAReveal";
 import { ConditionBReveal } from "@/components/conditionB/ConditionBReveal";
 import type { CalibrationResult } from "@/lib/telemetry/npoil";
 import { TelemetryProvider } from "@/lib/telemetry/TelemetryProvider";
+import { TelemetryReveal } from "@/components/reveal/TelemetryReveal";
 
 /**
  * DemoFlow - client-side orchestrator for the /demo apparatus.
@@ -17,7 +18,7 @@ import { TelemetryProvider } from "@/lib/telemetry/TelemetryProvider";
  * steps insert PIS → consent before calibration, and NASA-TLX → CIT → debrief →
  * telemetry reveal after the task.
  */
-type Step = "choose" | "calibration" | "running";
+type Step = "choose" | "calibration" | "running" | "reveal";
 
 export function DemoFlow() {
   const [step, setStep] = useState<Step>("choose");
@@ -59,6 +60,8 @@ export function DemoFlow() {
               setStep("running");
             }}
           />
+        ) : step === "reveal" ? (
+          <TelemetryReveal onRestart={restart} />
         ) : (
           <div className="flex flex-1 flex-col">
             <TaskScreen
@@ -66,6 +69,7 @@ export function DemoFlow() {
               calibration={calibration}
               onRestart={restart}
               reveal={condition === "A" ? ConditionAReveal : ConditionBReveal}
+              onFinish={() => setStep("reveal")}
             />
           </div>
         )}

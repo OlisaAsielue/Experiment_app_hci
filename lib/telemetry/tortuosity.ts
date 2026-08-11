@@ -60,11 +60,23 @@ function dist(ax: number, ay: number, bx: number, by: number): number {
 /** Returns tortuosity (>= ~1.0), 1.0 for a still/straight path, or null if too few samples. */
 export function computeTortuosity(inputs: TortuosityInputs): number | null {
   const {
+    minSamples = TORTUOSITY_MIN_SAMPLES,
+    epsilon = TORTUOSITY_D_EPSILON,
+  } = inputs;
+  return computeTortuosityValue(tortuosityWindow(inputs), { minSamples, epsilon });
+}
+
+/**
+ * The exact sample slice tortuosity scores: [submitAt - windowMs, submitAt] with the
+ * V&P exclusion applied. Exported so the demo cursor-path sketch renders from the
+ * SAME window as the number (the picture and the value must match). Preserves the
+ * buffer's chronological order.
+ */
+export function tortuosityWindow(inputs: TortuosityInputs): CursorSample[] {
+  const {
     samples,
     submitAt,
     windowMs = TORTUOSITY_WINDOW_MS,
-    minSamples = TORTUOSITY_MIN_SAMPLES,
-    epsilon = TORTUOSITY_D_EPSILON,
     excludeAroundMs = TORTUOSITY_EXCLUDE_AROUND_MS,
     excludeTimestamps = [],
   } = inputs;
@@ -79,6 +91,15 @@ export function computeTortuosity(inputs: TortuosityInputs): number | null {
       (s) => !excludeTimestamps.some((t) => Math.abs(s.at - t) <= excludeAroundMs),
     );
   }
+  return win;
+}
+
+/** Compute L/D from an already-sliced window, with the two numeric guards. */
+export function computeTortuosityValue(
+  win: CursorSample[],
+  opts: { minSamples?: number; epsilon?: number } = {},
+): number | null {
+  const { minSamples = TORTUOSITY_MIN_SAMPLES, epsilon = TORTUOSITY_D_EPSILON } = opts;
 
   // (2) Sample-count floor.
   if (win.length < minSamples) return null;

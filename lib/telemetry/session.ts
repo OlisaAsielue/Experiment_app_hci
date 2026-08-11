@@ -7,19 +7,11 @@ import type {
 } from "./types";
 import type { Condition } from "@/lib/types";
 import type { CalibrationResult } from "./npoil";
+import type { LiveActivitySwitching } from "./liveEntropy";
 
 /** Rolling cursor buffer window (ms). Covers the 3s tortuosity window with headroom. */
 export const CURSOR_BUFFER_MS = 4000;
 
-/** A lightweight, DEMO-ONLY entropy estimate (D5) - NOT the offline Appendix A.2 calc. */
-export interface LiveEntropyEstimate {
-  /** Proportion of observed state-time spent in each state (empirical π estimate). */
-  stateProportions: Record<InteractionState, number>;
-  /** A simple normalised entropy of those proportions, 0..1. Display only. */
-  normalisedStateEntropy: number;
-  /** Number of state transitions observed (a crude variety signal). */
-  transitionCount: number;
-}
 
 /**
  * TelemetrySession - the ONE place all four streams write to, sharing one clock.
@@ -48,6 +40,8 @@ export class TelemetrySession {
   // Stream 3 - cursor samples (tortuosity, D3). Rolling buffer, last ~CURSOR_BUFFER_MS.
   readonly cursorBuffer: CursorSample[] = [];
   tortuosity: number | null = null;
+  /** Exact window tortuosity scored, snapshotted at submit (for the matching sketch). */
+  tortuosityWindow: CursorSample[] | null = null;
   /** Verify & Proceed click times (Condition B). Used only for the D3 exclusion. */
   readonly verifyProceedAt: number[] = [];
 
@@ -56,8 +50,9 @@ export class TelemetrySession {
   submittedAt: number | null = null;
   npoilMs: number | null = null;
 
-  // D5b - demo-only live entropy estimate, set at reveal time by its own function.
-  liveEntropyEstimate: LiveEntropyEstimate | null = null;
+  // D5b - demo-only live activity-switching estimate, set at submit by its own
+  // function (liveEntropy.ts). Kept structurally separate from stateLog.
+  liveEntropyEstimate: LiveActivitySwitching | null = null;
 
   constructor(sessionCode?: string) {
     this.sessionCode =
@@ -130,5 +125,15 @@ export class TelemetrySession {
   /** Store the tortuosity computed once at final Submit (may be null; see D3 guards). */
   setTortuosity(value: number | null): void {
     this.tortuosity = value;
+  }
+
+  /** Snapshot the exact window tortuosity scored, so the sketch matches the number. */
+  setTortuosityWindow(win: CursorSample[]): void {
+    this.tortuosityWindow = win;
+  }
+
+  /** Store the demo-only live activity-switching estimate (D5b). */
+  setLiveEntropyEstimate(estimate: LiveActivitySwitching): void {
+    this.liveEntropyEstimate = estimate;
   }
 }

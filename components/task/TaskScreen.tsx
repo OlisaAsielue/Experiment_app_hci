@@ -18,7 +18,11 @@ import { useTelemetry } from "@/lib/telemetry/TelemetryProvider";
 import { useInteractionStateMachine } from "@/lib/telemetry/useInteractionStateMachine";
 import { useEditingEvents } from "@/lib/telemetry/useEditingEvents";
 import { useCursorBuffer } from "@/lib/telemetry/useCursorBuffer";
-import { computeTortuosity } from "@/lib/telemetry/tortuosity";
+import {
+  tortuosityWindow,
+  computeTortuosityValue,
+} from "@/lib/telemetry/tortuosity";
+import { computeLiveActivitySwitching } from "@/lib/telemetry/liveEntropy";
 
 /**
  * TaskScreen - the shared task surface for BOTH conditions.
@@ -101,9 +105,9 @@ export function TaskScreen({
       submittedAt,
       responseText: response,
     };
-    onFinish?.(data);
 
-    // Live NPOIL preview (telemetry proper + NASA-TLX/CIT/debrief come in later steps).
+    // Compute + store ALL stream values on the session BEFORE onFinish, so anything
+    // onFinish triggers (e.g. the reveal) reads a fully-populated session.
     const rawPauseMs =
       outputVisibleAtRef.current != null
         ? submittedAt - outputVisibleAtRef.current
@@ -119,14 +123,29 @@ export function TaskScreen({
     // Consolidate NPOIL timing onto the shared session (stream 4).
     session.recordSubmission(submittedAt, npoilMs);
 
-    // Stream 3 (tortuosity, D3): computed ONCE here, on final Submit only. The V&P
-    // exclusion is passed as insurance (expected empty in the final 3s window).
-    const tortuosity = computeTortuosity({
+    // Stream 3 (tortuosity, D3): computed ONCE here, on final Submit only. Slice the
+    // window ONCE and store it, so the demo cursor-path sketch renders from exactly the
+    // same samples the number was scored over. V&P exclusion passed as insurance.
+    const win = tortuosityWindow({
       samples: session.cursorBuffer,
       submitAt: submittedAt,
       excludeTimestamps: session.verifyProceedAt,
     });
+    const tortuosity = computeTortuosityValue(win);
     session.setTortuosity(tortuosity);
+    session.setTortuosityWindow(win);
+
+    // D5b live activity-switching estimate, over the SAME post-output window the other
+    // values use (outputVisibleAt -> submit). Its own function; never the A.2 entropy.
+    if (outputVisibleAtRef.current != null) {
+      session.setLiveEntropyEstimate(
+        computeLiveActivitySwitching(
+          session.stateLog,
+          outputVisibleAtRef.current,
+          submittedAt,
+        ),
+      );
+    }
 
     console.log("[task] submitted", {
       ...data,
@@ -139,7 +158,9 @@ export function TaskScreen({
       readingVelocityMsPerWord: calibration?.readingVelocityMsPerWord ?? null,
       outputWordCount: AI_OUTPUT_WORD_COUNT,
     });
+
     setPhase("done");
+    onFinish?.(data); // last: the session is fully populated by this point.
   }
 
   const statusSlot = onRestart ? (
