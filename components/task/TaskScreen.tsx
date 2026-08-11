@@ -23,6 +23,7 @@ import {
   computeTortuosityValue,
 } from "@/lib/telemetry/tortuosity";
 import { computeLiveActivitySwitching } from "@/lib/telemetry/liveEntropy";
+import { persistEvent } from "@/lib/persist/sendEvent";
 
 /**
  * TaskScreen - the shared task surface for BOTH conditions.
@@ -158,6 +159,45 @@ export function TaskScreen({
       readingVelocityMsPerWord: calibration?.readingVelocityMsPerWord ?? null,
       outputWordCount: AI_OUTPUT_WORD_COUNT,
     });
+
+    // Fire-and-forget persistence of everything gathered this run. Each call is a
+    // no-op server-side unless PERSIST_DATA is on (lib/flags.ts); the demo's
+    // behaviour here is identical whether the flag is on or off.
+    persistEvent("task_events", {
+      session_code: session.sessionCode,
+      output_word_count: AI_OUTPUT_WORD_COUNT,
+      output_visible_at_ms: outputVisibleAtRef.current,
+      submitted_at_ms: submittedAt,
+      npoil_ms: npoilMs,
+    });
+    persistEvent(
+      "interaction_state_log",
+      session.stateLog.map((t) => ({
+        session_code: session.sessionCode,
+        state: t.state,
+        entered_at_ms: t.enteredAt,
+        exited_at_ms: t.exitedAt,
+      })),
+    );
+    persistEvent(
+      "editing_events",
+      session.editingEvents.map((e) => ({
+        session_code: session.sessionCode,
+        event_type: e.type,
+        at_ms: e.at,
+      })),
+    );
+    // Only the pre-submission tortuosity window is persisted, not the full buffer
+    // (PRD §6 schema comment on cursor_samples).
+    persistEvent(
+      "cursor_samples",
+      win.map((s) => ({
+        session_code: session.sessionCode,
+        x: s.x,
+        y: s.y,
+        at_ms: s.at,
+      })),
+    );
 
     setPhase("done");
     onFinish?.(data); // last: the session is fully populated by this point.

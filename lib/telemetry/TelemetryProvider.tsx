@@ -17,8 +17,16 @@ const TelemetryContext = createContext<TelemetrySession | null>(null);
  * shares one clock and one store. Created via a lazy useState initializer so the
  * instance (and its SessionClock t0) is stable across re-renders and made exactly once.
  */
-export function TelemetryProvider({ children }: { children: ReactNode }) {
-  const [session] = useState(() => new TelemetrySession());
+export function TelemetryProvider({
+  children,
+  sessionCode,
+}: {
+  children: ReactNode;
+  /** Pseudonymised session code generated at entry (DemoFlow), reused here so
+   * every persisted row and every in-memory stream share the same session_code. */
+  sessionCode?: string;
+}) {
+  const [session] = useState(() => new TelemetrySession(sessionCode));
 
   // Dev-only: expose the session for inspection/debugging. Never in production.
   useEffect(() => {

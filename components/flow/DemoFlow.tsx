@@ -16,6 +16,7 @@ import { NasaTlx } from "@/components/nasatlx/NasaTlx";
 import { CriticalIncident } from "@/components/cit/CriticalIncident";
 import { Debrief } from "@/components/debrief/Debrief";
 import { TelemetryReveal } from "@/components/reveal/TelemetryReveal";
+import { persistEvent } from "@/lib/persist/sendEvent";
 
 /**
  * DemoFlow - client-side orchestrator for the /demo apparatus.
@@ -47,6 +48,18 @@ export function DemoFlow() {
   const [condition, setCondition] = useState<Condition | null>(null);
   const [calibration, setCalibration] = useState<CalibrationResult | null>(null);
 
+  // Pseudonymised session code, generated once at entry (before PIS), per the paper's
+  // "pseudonymisation on entry" requirement (section 4.8) and PRD flow step 2. Reused
+  // as the session_code FK for every persisted row and passed into TelemetryProvider
+  // so the in-memory streams share the same code. Every persistEvent() call below is
+  // fire-and-forget: PERSIST_DATA off (the default) means the server no-ops on every
+  // one of them, this demo never depends on any of them succeeding.
+  const [sessionCode] = useState(() =>
+    typeof crypto !== "undefined" && crypto.randomUUID
+      ? crypto.randomUUID()
+      : `sess-${Date.now()}-${Math.random().toString(36).slice(2)}`,
+  );
+
   // NOTE (random assignment is OUT OF SCOPE for this demo build):
   // In the real study, condition is assigned by server-side 50/50 randomisation and
   // locked to the participant's pseudonymised session (see the paper §4.5 / PRD §8.1).
@@ -56,6 +69,13 @@ export function DemoFlow() {
   // the copy on the choice screen, not hidden.
   function choose(next: Condition) {
     setCondition(next);
+    persistEvent("sessions", {
+      session_code: sessionCode,
+      condition: next,
+      created_at: new Date().toISOString(),
+      completed_at: null,
+      status: "in_calibration",
+    });
     setStep("calibration");
   }
 
@@ -81,7 +101,15 @@ export function DemoFlow() {
 
       {step === "consent" && (
         <ConsentForm
-          onAgree={() => setStep("choose")}
+          onAgree={() => {
+            persistEvent("consent_records", {
+              prolific_id: null, // Prolific integration is a stub (PRD section 8.8)
+              session_code: sessionCode,
+              all_statements_agreed: true,
+              consent_timestamp: new Date().toISOString(),
+            });
+            setStep("choose");
+          }}
           onDecline={() => setStep("declined")}
         />
       )}
@@ -100,12 +128,18 @@ export function DemoFlow() {
         // every stream shares a single session + clock. NASA-TLX/CIT stay inside this
         // block too so the provider does not unmount before the reveal reads it, even
         // though neither instrument itself is part of telemetry capture.
-        <TelemetryProvider>
+        <TelemetryProvider sessionCode={sessionCode}>
           <div className="flex flex-1 flex-col">
             {step === "calibration" && (
               <Calibration
                 onComplete={(result) => {
                   setCalibration(result);
+                  persistEvent("calibration_events", {
+                    session_code: sessionCode,
+                    abstract_word_count: result.abstractWordCount,
+                    time_to_continue_ms: result.timeToContinueMs,
+                    reading_velocity_ms_per_word: result.readingVelocityMsPerWord,
+                  });
                   setStep("running");
                 }}
               />
@@ -122,7 +156,10 @@ export function DemoFlow() {
             {step === "nasatlx" && (
               <NasaTlx
                 onComplete={(responses) => {
-                  console.log("[nasa-tlx] submitted", responses);
+                  persistEvent("nasa_tlx_responses", {
+                    session_code: sessionCode,
+                    ...responses,
+                  });
                   setStep("cit");
                 }}
               />
@@ -130,7 +167,10 @@ export function DemoFlow() {
             {step === "cit" && (
               <CriticalIncident
                 onComplete={(text) => {
-                  console.log("[cit] submitted", { text });
+                  persistEvent("cit_responses", {
+                    session_code: sessionCode,
+                    reflection_text: text,
+                  });
                   setStep("debrief");
                 }}
               />
