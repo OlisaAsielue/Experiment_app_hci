@@ -3,9 +3,9 @@
 import { useState } from "react";
 import type { Condition } from "@/lib/types";
 import { DemoBanner } from "@/components/DemoBanner";
-import { ChatbotShell } from "@/components/shell/ChatbotShell";
-import { Button } from "@/components/ui/Button";
-import { PLACEHOLDER_AI_OUTPUT } from "@/content/placeholder-stimuli";
+import { TaskScreen } from "@/components/task/TaskScreen";
+import { ConditionAReveal } from "@/components/conditionA/ConditionAReveal";
+import { ConditionBReveal } from "@/components/conditionB/ConditionBReveal";
 
 /**
  * DemoFlow — client-side orchestrator for the /demo apparatus.
@@ -36,14 +36,22 @@ export function DemoFlow() {
     return <ConditionChoice onChoose={choose} />;
   }
 
+  const restart = () => {
+    setCondition(null);
+    setStep("choose");
+  };
+
   return (
-    <RunningPlaceholder
-      condition={condition!}
-      onRestart={() => {
-        setCondition(null);
-        setStep("choose");
-      }}
-    />
+    <div className="flex min-h-screen flex-col">
+      <DemoBanner />
+      <div className="flex flex-1 flex-col">
+        <TaskScreen
+          condition={condition!}
+          onRestart={restart}
+          reveal={condition === "A" ? ConditionAReveal : ConditionBReveal}
+        />
+      </div>
+    </div>
   );
 }
 
@@ -108,59 +116,5 @@ function ChoiceCard({
         Start &rarr;
       </span>
     </button>
-  );
-}
-
-/**
- * Temporary running view: renders the shared shell with placeholder AI output and a
- * response field, identical for both conditions. Steps 3–4 replace this with the real
- * Condition A (full/staged reveal) and Condition B (five gated stages) mechanics.
- */
-function RunningPlaceholder({
-  condition,
-  onRestart,
-}: {
-  condition: Condition;
-  onRestart: () => void;
-}) {
-  return (
-    <div className="flex min-h-screen flex-col">
-      <DemoBanner />
-      <div className="flex flex-1 flex-col">
-        <ChatbotShell
-          statusSlot={<span>Demo &middot; reveal mechanics coming next</span>}
-          outputSlot={
-            <div className="space-y-3">
-              <p className="text-xs font-medium uppercase tracking-wide text-neutral-400">
-                Placeholder AI output ({`Condition ${condition}`})
-              </p>
-              <p className="whitespace-pre-wrap text-[15px] leading-7 text-neutral-800">
-                {PLACEHOLDER_AI_OUTPUT}
-              </p>
-            </div>
-          }
-          responseSlot={
-            <label className="block">
-              <span className="mb-1.5 block text-sm font-medium text-neutral-700">
-                Your verified summary brief
-              </span>
-              <textarea
-                rows={4}
-                placeholder="Write your summary here…"
-                className="w-full resize-y rounded-lg border border-neutral-300 bg-white px-3 py-2 text-[15px] leading-6 text-neutral-900 placeholder:text-neutral-400 focus:border-neutral-500 focus:outline-none"
-              />
-            </label>
-          }
-          actionsSlot={
-            <>
-              <Button variant="secondary" onClick={onRestart}>
-                Start over
-              </Button>
-              <Button variant="primary">Submit</Button>
-            </>
-          }
-        />
-      </div>
-    </div>
   );
 }
