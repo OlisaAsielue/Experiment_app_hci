@@ -16,6 +16,7 @@ import { AI_OUTPUT_WORD_COUNT } from "@/content/placeholder-stimuli";
 import { computeNpoilMs, type CalibrationResult } from "@/lib/telemetry/npoil";
 import { useTelemetry } from "@/lib/telemetry/TelemetryProvider";
 import { useInteractionStateMachine } from "@/lib/telemetry/useInteractionStateMachine";
+import { useEditingEvents } from "@/lib/telemetry/useEditingEvents";
 
 /**
  * TaskScreen - the shared task surface for BOTH conditions.
@@ -62,6 +63,8 @@ export function TaskScreen({
   const session = useTelemetry();
   // Stream 1 (entropy): run the interaction-state machine for the task's lifetime.
   useInteractionStateMachine();
+  // Stream 2 (volatility): classify edits in the response field.
+  useEditingEvents();
 
   const [phase, setPhase] = useState<Phase>("command");
   const [command, setCommand] = useState(DEFAULT_COMMAND);
