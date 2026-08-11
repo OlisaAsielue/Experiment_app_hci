@@ -3,22 +3,25 @@
 import { useState } from "react";
 import type { Condition } from "@/lib/types";
 import { DemoBanner } from "@/components/DemoBanner";
+import { Calibration } from "@/components/flow/Calibration";
 import { TaskScreen } from "@/components/task/TaskScreen";
 import { ConditionAReveal } from "@/components/conditionA/ConditionAReveal";
 import { ConditionBReveal } from "@/components/conditionB/ConditionBReveal";
+import type { CalibrationResult } from "@/lib/telemetry/npoil";
 
 /**
  * DemoFlow — client-side orchestrator for the /demo apparatus.
  *
- * For now it has two steps: choose a condition, then run a bare shell for it.
- * Later steps insert PIS → consent → calibration → task(A/B) → NASA-TLX → CIT →
- * debrief → telemetry reveal between "choose" and "done".
+ * Steps so far: choose a condition → baseline calibration → run the task. Later
+ * steps insert PIS → consent before calibration, and NASA-TLX → CIT → debrief →
+ * telemetry reveal after the task.
  */
-type Step = "choose" | "running";
+type Step = "choose" | "calibration" | "running";
 
 export function DemoFlow() {
   const [step, setStep] = useState<Step>("choose");
   const [condition, setCondition] = useState<Condition | null>(null);
+  const [calibration, setCalibration] = useState<CalibrationResult | null>(null);
 
   // NOTE (random assignment is OUT OF SCOPE for this demo build):
   // In the real study, condition is assigned by server-side 50/50 randomisation and
@@ -29,17 +32,32 @@ export function DemoFlow() {
   // the copy on the choice screen, not hidden.
   function choose(next: Condition) {
     setCondition(next);
-    setStep("running");
+    setStep("calibration");
   }
+
+  const restart = () => {
+    setCondition(null);
+    setCalibration(null);
+    setStep("choose");
+  };
 
   if (step === "choose") {
     return <ConditionChoice onChoose={choose} />;
   }
 
-  const restart = () => {
-    setCondition(null);
-    setStep("choose");
-  };
+  if (step === "calibration") {
+    return (
+      <div className="flex min-h-screen flex-col">
+        <DemoBanner />
+        <Calibration
+          onComplete={(result) => {
+            setCalibration(result);
+            setStep("running");
+          }}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -47,6 +65,7 @@ export function DemoFlow() {
       <div className="flex flex-1 flex-col">
         <TaskScreen
           condition={condition!}
+          calibration={calibration}
           onRestart={restart}
           reveal={condition === "A" ? ConditionAReveal : ConditionBReveal}
         />

@@ -6,6 +6,8 @@ import { ChatbotShell } from "@/components/shell/ChatbotShell";
 import { Button } from "@/components/ui/Button";
 import { SourcePanel } from "./SourcePanel";
 import type { RevealProps } from "./types";
+import { AI_OUTPUT_WORD_COUNT } from "@/content/placeholder-stimuli";
+import { computeNpoilMs, type CalibrationResult } from "@/lib/telemetry/npoil";
 
 /**
  * TaskScreen — the shared task surface for BOTH conditions.
@@ -37,12 +39,15 @@ export interface TaskFinishData {
 export function TaskScreen({
   condition,
   reveal: RevealComponent,
+  calibration,
   onRestart,
   onFinish,
 }: {
   condition: Condition;
   /** Condition-specific output-reveal component (the ONLY part that differs). */
   reveal: ComponentType<RevealProps>;
+  /** Baseline reading velocity from the calibration phase; needed to compute NPOIL. */
+  calibration?: CalibrationResult | null;
   onRestart?: () => void;
   onFinish?: (data: TaskFinishData) => void;
 }) {
@@ -70,13 +75,26 @@ export function TaskScreen({
       responseText: response,
     };
     onFinish?.(data);
-    // Step-3 placeholder: telemetry + NASA-TLX/CIT/debrief come in later steps.
+
+    // Live NPOIL preview (telemetry proper + NASA-TLX/CIT/debrief come in later steps).
+    const rawPauseMs =
+      outputVisibleAtRef.current != null
+        ? submittedAt - outputVisibleAtRef.current
+        : null;
+    const npoilMs =
+      calibration && rawPauseMs != null
+        ? computeNpoilMs(
+            rawPauseMs,
+            calibration.readingVelocityMsPerWord,
+            AI_OUTPUT_WORD_COUNT,
+          )
+        : null;
     console.log("[task] submitted", {
       ...data,
-      rawPauseMs:
-        outputVisibleAtRef.current != null
-          ? submittedAt - outputVisibleAtRef.current
-          : null,
+      rawPauseMs,
+      npoilMs,
+      readingVelocityMsPerWord: calibration?.readingVelocityMsPerWord ?? null,
+      outputWordCount: AI_OUTPUT_WORD_COUNT,
     });
     setPhase("done");
   }
