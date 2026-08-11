@@ -119,6 +119,68 @@ export const CONDITION_B_STAGES = [
 
 export type ConditionBStage = (typeof CONDITION_B_STAGES)[number];
 
+/**
+ * Per-stage content for Condition B's five-stage reveal.
+ *
+ * Stages 1–4 are intermediate "pipeline" artifacts (placeholder). Stage 5 ("Final
+ * verification") is the COMPLETE synthesis and is deliberately the SAME text as the
+ * Condition A output (PLACEHOLDER_AI_OUTPUT) — both conditions must end on identical
+ * content; only the reveal differs (paper §4.3). When you swap in final content,
+ * keep stage 5 identical to the Condition A output.
+ */
+export interface ConditionBStageContent {
+  title: ConditionBStage;
+  /** Whether this stage is the final full synthesis (rendered in the read-only panel). */
+  isFinal: boolean;
+  body: string;
+}
+
+export const CONDITION_B_STAGE_CONTENT: ConditionBStageContent[] = [
+  {
+    title: "Source extraction",
+    isFinal: false,
+    body: `Pulled the key claim from each source:
+• S1 — home days show ~22% more deep-focus time; effect strongest for solo analytical work.
+• S2 — fully-remote shift coincided with fewer spontaneous cross-team exchanges and fewer novel proposals.
+• S3 — structured asynchronous rituals recovered most of that proposal-rate decline.
+• S4 — schedule autonomy linked to lower burnout, but only with explicit availability norms.
+[PLACEHOLDER intermediate artifact.]`,
+  },
+  {
+    title: "Thematic clustering",
+    isFinal: false,
+    body: `Grouped the extracted claims into three themes:
+1. Individual focus (S1) — improves remotely.
+2. Collaboration & idea generation (S2, S3) — at risk, but recoverable.
+3. Wellbeing & autonomy (S4) — conditional on explicit norms.
+[PLACEHOLDER intermediate artifact.]`,
+  },
+  {
+    title: "Cross-source comparison",
+    isFinal: false,
+    body: `Compared the sources for agreement and tension:
+• Agreement: remote work aids focused individual output (S1) and schedule autonomy aids wellbeing (S4).
+• Tension: S2 frames lost collaboration as a real cost; S3 argues it is process-related and recoverable.
+• Caveat: "productivity" is defined differently across S1–S4, so some disagreement may be measurement artefact.
+[PLACEHOLDER intermediate artifact.]`,
+  },
+  {
+    title: "Synthesis drafting",
+    isFinal: false,
+    body: `Rough draft before final verification:
+Distributed teams keep individual focus and gain schedule autonomy, but lose the incidental
+conditions behind spontaneous collaboration — a cost that structured async practice can largely
+offset. Cross-study comparison stays limited by inconsistent definitions of productivity.
+[PLACEHOLDER intermediate draft.]`,
+  },
+  {
+    title: "Final verification",
+    isFinal: true,
+    // Identical to the Condition A output — both conditions end on the same content.
+    body: PLACEHOLDER_AI_OUTPUT,
+  },
+];
+
 // Derived word counts (used by NPOIL — do not hardcode).
 export const CALIBRATION_WORD_COUNT = wordCount(PLACEHOLDER_CALIBRATION_ABSTRACT);
 export const AI_OUTPUT_WORD_COUNT = wordCount(PLACEHOLDER_AI_OUTPUT);

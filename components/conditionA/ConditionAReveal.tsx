@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { PLACEHOLDER_AI_OUTPUT } from "@/content/placeholder-stimuli";
 import type { RevealProps } from "@/components/task/types";
+import { ReadOnlyOutput } from "@/components/task/ReadOnlyOutput";
 
 /**
  * Condition A — Low-Agency Automation reveal.
@@ -79,20 +80,7 @@ export function ConditionAReveal({ started, onOutputVisible }: RevealProps) {
     );
   }
 
-  return (
-    <div className="space-y-2">
-      <p className="text-xs font-medium uppercase tracking-wide text-neutral-400">
-        Assistant synthesis
-      </p>
-      <div
-        aria-readonly="true"
-        data-condition="A"
-        className="select-text whitespace-pre-wrap rounded-lg bg-neutral-100 p-4 text-[15px] leading-7 text-neutral-800"
-      >
-        {PLACEHOLDER_AI_OUTPUT}
-      </div>
-    </div>
-  );
+  return <ReadOnlyOutput condition="A">{PLACEHOLDER_AI_OUTPUT}</ReadOnlyOutput>;
 }
 
 function Spinner() {

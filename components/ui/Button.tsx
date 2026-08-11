@@ -10,6 +10,13 @@ type Variant = "primary" | "secondary";
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: Variant;
+  /**
+   * Marks this as a MANDATORY-click control (Send, Verify & Proceed, final Submit).
+   * Adds a `data-mandatory-click` attribute so telemetry (Step 6) can exclude these
+   * clicks from Input & Editing Volatility at the event-capture level — uniformly,
+   * with no per-control special-casing. See PRD §5.2 and decisions.md Decision 10.
+   */
+  mandatory?: boolean;
   children: ReactNode;
 }
 
@@ -25,11 +32,16 @@ const variants: Record<Variant, string> = {
 export function Button({
   variant = "primary",
   className = "",
+  mandatory,
   children,
   ...props
 }: ButtonProps) {
   return (
-    <button className={`${base} ${variants[variant]} ${className}`} {...props}>
+    <button
+      className={`${base} ${variants[variant]} ${className}`}
+      data-mandatory-click={mandatory ? "true" : undefined}
+      {...props}
+    >
       {children}
     </button>
   );

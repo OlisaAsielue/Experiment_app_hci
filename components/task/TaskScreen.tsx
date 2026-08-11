@@ -125,11 +125,14 @@ export function TaskScreen({
             Submitted ✓
           </span>
         ) : phase === "output" ? (
-          <Button onClick={submit} disabled={!response.trim()}>
+          // Final brief submission — a MANDATORY click (excluded from volatility).
+          <Button mandatory onClick={submit} disabled={!response.trim()}>
             Submit
           </Button>
         ) : (
+          // Initial "send one command" — a MANDATORY click (excluded from volatility).
           <Button
+            mandatory
             onClick={send}
             disabled={phase === "generating" || !command.trim()}
           >
