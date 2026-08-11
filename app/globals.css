@@ -7,24 +7,99 @@
   auto-switch to the visitor's system dark mode. In a controlled between-subjects
   experiment the visual stimulus must be identical for every participant, so we do
   not let system theme introduce an uncontrolled difference (contrast, perceived
-  effort) that could confound the behavioural telemetry. The funder-facing "/" page
-  may introduce a richer/designed theme later without affecting the apparatus.
+  effort) that could confound the behavioural telemetry.
 */
 
 :root {
   --background: #fafaf9; /* warm neutral-50 */
   --foreground: #1c1917; /* neutral-900 */
+  --surface: #ffffff;
+  --border: #e7e5e4; /* neutral-200 */
+  --muted: #78716c; /* neutral-500 */
+  /* One restrained interactive accent, used only for focus rings and selection so
+     the neutral, non-brand look holds. */
+  --ring: #44403c; /* neutral-700 */
+  --selection: #e7e5e4; /* neutral-200 */
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-surface: var(--surface);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans), system-ui, -apple-system, sans-serif;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Browser surfaces themed from the palette rather than left as UA defaults: the
+   selection tint, caret, focus ring, and scrollbar. Cheap, and they signal a page
+   that was drawn rather than assembled. */
+::selection {
+  background: var(--selection);
+  color: var(--foreground);
+}
+
+:root {
+  caret-color: var(--foreground);
+  accent-color: var(--ring);
+}
+
+/* Consistent focus treatment for keyboard users across every interactive element. */
+:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Thin, themed scrollbar (WebKit + Firefox). Subtle enough not to distract from the
+   controlled task surface. */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+*::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 9999px;
+  border: 3px solid var(--background);
+}
+*::-webkit-scrollbar-thumb:hover {
+  background: #d6d3d1; /* neutral-300 */
+}
+
+/* One authored motion moment, used only on the funder-facing "/" page (see
+   .rwo-rise). Never used inside the /demo apparatus, whose stimulus stays static.
+   Fully disabled for reduced-motion users. */
+@keyframes rwo-rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.rwo-rise {
+  animation: rwo-rise 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .rwo-rise {
+    animation: none;
+  }
 }
