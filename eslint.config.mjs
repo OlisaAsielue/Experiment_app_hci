@@ -12,6 +12,9 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Third-party design skill (Impeccable) — not our code to lint.
+    ".agents/**",
+    ".claude/**",
   ]),
 ]);
 
