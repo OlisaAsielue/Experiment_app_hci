@@ -59,9 +59,12 @@ export function ChatbotShell({
           ) : null}
         </header>
 
-        {/* AI output region — differs between conditions */}
+        {/* AI output region — differs between conditions.
+            data-output-container is the Hovering hit-test target (Appendix A.1); it is
+            the same stable, condition-identical region in both A and B. */}
         <section
           aria-label="AI output"
+          data-output-container="true"
           className="flex-1 overflow-y-auto px-5 py-5"
         >
           {outputSlot}

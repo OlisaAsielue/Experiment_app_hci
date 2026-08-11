@@ -1,6 +1,12 @@
 "use client";
 
-import { useCallback, useRef, useState, type ComponentType } from "react";
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type ComponentType,
+} from "react";
 import type { Condition } from "@/lib/types";
 import { ChatbotShell } from "@/components/shell/ChatbotShell";
 import { Button } from "@/components/ui/Button";
@@ -8,6 +14,8 @@ import { SourcePanel } from "./SourcePanel";
 import type { RevealProps } from "./types";
 import { AI_OUTPUT_WORD_COUNT } from "@/content/placeholder-stimuli";
 import { computeNpoilMs, type CalibrationResult } from "@/lib/telemetry/npoil";
+import { useTelemetry } from "@/lib/telemetry/TelemetryProvider";
+import { useInteractionStateMachine } from "@/lib/telemetry/useInteractionStateMachine";
 
 /**
  * TaskScreen — the shared task surface for BOTH conditions.
@@ -51,23 +59,35 @@ export function TaskScreen({
   onRestart?: () => void;
   onFinish?: (data: TaskFinishData) => void;
 }) {
+  const session = useTelemetry();
+  // Stream 1 (entropy): run the interaction-state machine for the task's lifetime.
+  useInteractionStateMachine();
+
   const [phase, setPhase] = useState<Phase>("command");
   const [command, setCommand] = useState(DEFAULT_COMMAND);
   const [response, setResponse] = useState("");
   const outputVisibleAtRef = useRef<number | null>(null);
 
+  // Record run identity onto the shared session (kept in sync with the props).
+  useEffect(() => {
+    session.setCondition(condition);
+    session.setCalibration(calibration ?? null);
+  }, [session, condition, calibration]);
+
   const onOutputVisible = useCallback(() => {
-    // NPOIL start point. Guarded to fire once by the reveal component itself.
-    outputVisibleAtRef.current = performance.now();
+    // NPOIL start point (session clock, shared with the state log). Guarded to fire once.
+    const at = session.clock.now();
+    outputVisibleAtRef.current = at;
+    session.markOutputVisible(at);
     setPhase("output");
-  }, []);
+  }, [session]);
 
   function send() {
     if (command.trim()) setPhase("generating");
   }
 
   function submit() {
-    const submittedAt = performance.now();
+    const submittedAt = session.clock.now();
     const data: TaskFinishData = {
       condition,
       outputVisibleAt: outputVisibleAtRef.current,
@@ -89,6 +109,8 @@ export function TaskScreen({
             AI_OUTPUT_WORD_COUNT,
           )
         : null;
+    // Consolidate NPOIL timing onto the shared session (stream 4).
+    session.recordSubmission(submittedAt, npoilMs);
     console.log("[task] submitted", {
       ...data,
       rawPauseMs,
@@ -207,6 +229,9 @@ function ResponseField({
         disabled={disabled}
         onChange={(e) => onChange(e.target.value)}
         placeholder="Write your summary here…"
+        // The participant's response field: Modifying-state target (A.1) and the scope
+        // of Input & Editing Volatility (PRD §5.2). The command field is NOT tagged.
+        data-response-field="true"
         className="w-full resize-y rounded-lg border border-neutral-300 bg-white px-3 py-2 text-[15px] leading-6 text-neutral-900 placeholder:text-neutral-400 focus:border-neutral-500 focus:outline-none disabled:bg-neutral-100 disabled:text-neutral-500"
       />
     </label>

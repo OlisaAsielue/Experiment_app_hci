@@ -8,6 +8,7 @@ import { TaskScreen } from "@/components/task/TaskScreen";
 import { ConditionAReveal } from "@/components/conditionA/ConditionAReveal";
 import { ConditionBReveal } from "@/components/conditionB/ConditionBReveal";
 import type { CalibrationResult } from "@/lib/telemetry/npoil";
+import { TelemetryProvider } from "@/lib/telemetry/TelemetryProvider";
 
 /**
  * DemoFlow — client-side orchestrator for the /demo apparatus.
@@ -45,32 +46,31 @@ export function DemoFlow() {
     return <ConditionChoice onChoose={choose} />;
   }
 
-  if (step === "calibration") {
-    return (
+  // Once a condition is chosen, ONE TelemetryProvider spans the whole run
+  // (calibration through submit) so every stream shares a single session + clock.
+  return (
+    <TelemetryProvider>
       <div className="flex min-h-screen flex-col">
         <DemoBanner />
-        <Calibration
-          onComplete={(result) => {
-            setCalibration(result);
-            setStep("running");
-          }}
-        />
+        {step === "calibration" ? (
+          <Calibration
+            onComplete={(result) => {
+              setCalibration(result);
+              setStep("running");
+            }}
+          />
+        ) : (
+          <div className="flex flex-1 flex-col">
+            <TaskScreen
+              condition={condition!}
+              calibration={calibration}
+              onRestart={restart}
+              reveal={condition === "A" ? ConditionAReveal : ConditionBReveal}
+            />
+          </div>
+        )}
       </div>
-    );
-  }
-
-  return (
-    <div className="flex min-h-screen flex-col">
-      <DemoBanner />
-      <div className="flex flex-1 flex-col">
-        <TaskScreen
-          condition={condition!}
-          calibration={calibration}
-          onRestart={restart}
-          reveal={condition === "A" ? ConditionAReveal : ConditionBReveal}
-        />
-      </div>
-    </div>
+    </TelemetryProvider>
   );
 }
 
