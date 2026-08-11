@@ -12,6 +12,8 @@ import { ConditionAReveal } from "@/components/conditionA/ConditionAReveal";
 import { ConditionBReveal } from "@/components/conditionB/ConditionBReveal";
 import type { CalibrationResult } from "@/lib/telemetry/npoil";
 import { TelemetryProvider } from "@/lib/telemetry/TelemetryProvider";
+import { NasaTlx } from "@/components/nasatlx/NasaTlx";
+import { CriticalIncident } from "@/components/cit/CriticalIncident";
 import { Debrief } from "@/components/debrief/Debrief";
 import { TelemetryReveal } from "@/components/reveal/TelemetryReveal";
 
@@ -19,10 +21,10 @@ import { TelemetryReveal } from "@/components/reveal/TelemetryReveal";
  * DemoFlow - client-side orchestrator for the /demo apparatus.
  *
  * Full sequence: PIS -> consent (-> decline, a real exit, not a dead end) -> choose a
- * condition -> baseline calibration -> run the task -> debrief -> telemetry reveal.
- * This mirrors the paper's canonical order (consent precedes assignment) even though
- * "assignment" here is the visitor's own choice rather than randomisation. NASA-TLX
- * and CIT (Step 9) will insert between the task and the debrief.
+ * condition -> baseline calibration -> run the task -> Raw NASA-TLX -> CIT reflection
+ * -> debrief -> telemetry reveal. This mirrors the paper's canonical order (consent
+ * precedes assignment, NASA-TLX precedes CIT precedes debrief) even though
+ * "assignment" here is the visitor's own choice rather than randomisation.
  *
  * The "Demonstration only" banner is rendered ONCE, unconditionally, at the top of
  * every step, so it is visible no matter which step a visitor lands on (PRD section
@@ -35,6 +37,8 @@ type Step =
   | "choose"
   | "calibration"
   | "running"
+  | "nasatlx"
+  | "cit"
   | "debrief"
   | "reveal";
 
@@ -88,10 +92,14 @@ export function DemoFlow() {
 
       {(step === "calibration" ||
         step === "running" ||
+        step === "nasatlx" ||
+        step === "cit" ||
         step === "debrief" ||
         step === "reveal") && (
         // ONE TelemetryProvider spans the whole run (calibration through submit) so
-        // every stream shares a single session + clock.
+        // every stream shares a single session + clock. NASA-TLX/CIT stay inside this
+        // block too so the provider does not unmount before the reveal reads it, even
+        // though neither instrument itself is part of telemetry capture.
         <TelemetryProvider>
           <div className="flex flex-1 flex-col">
             {step === "calibration" && (
@@ -108,7 +116,23 @@ export function DemoFlow() {
                 calibration={calibration}
                 onRestart={restart}
                 reveal={condition === "A" ? ConditionAReveal : ConditionBReveal}
-                onFinish={() => setStep("debrief")}
+                onFinish={() => setStep("nasatlx")}
+              />
+            )}
+            {step === "nasatlx" && (
+              <NasaTlx
+                onComplete={(responses) => {
+                  console.log("[nasa-tlx] submitted", responses);
+                  setStep("cit");
+                }}
+              />
+            )}
+            {step === "cit" && (
+              <CriticalIncident
+                onComplete={(text) => {
+                  console.log("[cit] submitted", { text });
+                  setStep("debrief");
+                }}
               />
             )}
             {step === "debrief" && (
