@@ -6,8 +6,10 @@ import {
   type VolatilityState,
 } from "../editingEvents.ts";
 
-// Input & Editing Volatility classifier (D4). The rule is stateful, so the run is
-// one ordered sequence threading `state` through each edit. See lib/telemetry/types.ts.
+// Input & Editing Volatility classifier (D4 rule, PRD §5.2). The rule is stateful, so
+// this is ONE ordered sequence. Each step is its own node:test so a failure names the
+// exact step; node runs top-level tests sequentially in definition order, so `state`
+// threads correctly from one step to the next.
 
 // [newLength, at, expectedType, note]
 const steps: [number, number, "corrective" | "additive", string][] = [
@@ -41,15 +43,18 @@ const steps: [number, number, "corrective" | "additive", string][] = [
   [8, 11300, "additive", "exceed 7 -> additive"],
 ];
 
-test("classifyEdit sequence (delete/retype/window/recovery/multi-delete)", () => {
-  let state: VolatilityState = initialVolatilityState();
-  let corrective = 0;
-  for (const [len, at, expected, note] of steps) {
+let state: VolatilityState = initialVolatilityState();
+let corrective = 0;
+
+for (const [len, at, expected, note] of steps) {
+  test(`volatility: ${note}`, () => {
     const { type, next } = classifyEdit(state, len, at);
-    assert.equal(type, expected, note);
+    assert.equal(type, expected);
     state = next;
-    if (type === "corrective") corrective++;
-  }
-  // Corrective count for this exact sequence.
+    if (type === "corrective") corrective += 1;
+  });
+}
+
+test("volatility: corrective count for the full sequence is 8", () => {
   assert.equal(corrective, 8);
 });

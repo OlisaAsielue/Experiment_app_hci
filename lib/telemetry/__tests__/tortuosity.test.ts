@@ -50,18 +50,25 @@ test("window slice excludes samples older than 3s", () => {
   assert.ok(t !== null && near(t as number, 1.0, 1e-6));
 });
 
-test("V&P exclusion drops flagged samples", () => {
+// Shared fixture: a straight run with one wild sample sitting exactly at a V&P time.
+const VP_TIME = 100_000 - 1500;
+function withWildSample(): S[] {
   const recent = line(20, 100_000, 0, 0);
-  const vpTime = 100_000 - 1500;
-  const wild: S = { x: 9999, y: 9999, at: vpTime };
-  const withWild = [...recent.slice(0, 10), wild, ...recent.slice(10)];
-  const excluded = computeTortuosity({
-    samples: withWild,
+  const wild: S = { x: 9999, y: 9999, at: VP_TIME };
+  return [...recent.slice(0, 10), wild, ...recent.slice(10)];
+}
+
+test("V&P exclusion drops the flagged sample -> ~1.0", () => {
+  const t = computeTortuosity({
+    samples: withWildSample(),
     submitAt: 100_000,
     minSamples: 2,
-    excludeTimestamps: [vpTime],
+    excludeTimestamps: [VP_TIME],
   });
-  const notExcluded = computeTortuosity({ samples: withWild, submitAt: 100_000, minSamples: 2 });
-  assert.ok(excluded !== null && near(excluded as number, 1.0, 1e-6));
-  assert.ok((notExcluded as number) > 100); // without exclusion the wild sample inflates it
+  assert.ok(t !== null && near(t as number, 1.0, 1e-6));
+});
+
+test("without V&P exclusion the flagged sample inflates tortuosity", () => {
+  const t = computeTortuosity({ samples: withWildSample(), submitAt: 100_000, minSamples: 2 });
+  assert.ok((t as number) > 100);
 });
