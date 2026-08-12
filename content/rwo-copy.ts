@@ -2,14 +2,26 @@
  * ============================================================================
  *  RWO EXPLAINER COPY ("/" route) - single editable content file
  * ============================================================================
- * The funder-facing explainer text, kept in ONE place (PRD section 9) so the
- * final prose pass - which happens separately as the very last build step - can
- * edit copy here without touching the page component.
+ * The funder-facing explainer text, kept in ONE place so the prose can be
+ * edited here without touching the page component.
  *
- * This is DRAFT copy transcribed from docs/rwo-explainer-copy.md. Bracketed
- * placeholders ([named PI], [contact]) are left as visible placeholder text on
- * screen for now, matching the pattern used for the consent/PIS placeholders;
- * they are filled in during the final prose pass, not guessed at here.
+ * SOURCE OF TRUTH: docs/Grant_Proposal_Formatted.md (the grant proposal). Every
+ * figure and framing on this page is taken from that document. The earlier
+ * docs/rwo-explainer-copy.md draft is fully SUPERSEDED, not extended.
+ *
+ * Structure (five sections + a closing CTA):
+ *   1. hero      - the hook
+ *   2. ask       - the amount requested and what it funds (real figures)
+ *   3. tryIt     - the primary call to action, promoted high on the page
+ *   4. system    - what we built AND how we measure it, merged
+ *   5. problem   - shortened supporting context, not a gate before the ask
+ *   6. next      - final call to action + contact
+ *
+ * Bracketed placeholders such as [contact] are left as visible placeholder text
+ * on screen, matching the consent/PIS placeholder pattern. They are filled in
+ * during the final prose pass, never guessed at here. Any figure or named person
+ * not finalised in the proposal must render as a placeholder, not an invented
+ * value.
  * ============================================================================
  */
 
@@ -21,45 +33,61 @@ export const RWO_COPY = {
     cta: "Try the demo",
   },
 
-  problem: {
-    heading: "The problem",
-    paragraphs: [
-      "Most AI tools are built to remove friction: fewer clicks, faster answers, a finished result in one step. That is good for speed. It may be quietly bad for judgement.",
-      "When a tool hands someone a polished answer with no visible working, the easiest thing to do is accept it. Do that often enough and the habit of checking starts to fade. People report reaching a point where they are no longer really evaluating what the AI gives them, they are just passing it along. We call that state cognitive surrender: the point where active, critical engagement stops.",
-      "This is not a hypothetical concern. In accounts from people using AI for real knowledge work, the same pattern recurs: a gradual slide from using the tool to depending on it, often noticed only after it has already happened.",
+  ask: {
+    heading: "The ask",
+    amount: "£1,089",
+    amountCaption: "to run the study the tool was built for",
+    lines: [
+      "That funds recruiting 192 participants through Prolific to complete the task, split evenly between the two versions of the tool.",
+      "£947 covers the participants at the London Living Wage, inclusive of Prolific's academic fee; £142 is contingency.",
+      "The apparatus is live now, and you can try it on this page before any funding decision is made.",
     ],
   },
 
-  built: {
-    heading: "What we built",
-    paragraphs: [
-      "A working web application with two versions of the same AI research tool.",
-      "One version behaves like most tools on the market: you ask, it thinks, it hands you a finished answer to read and accept. The other makes you a participant in the process, it reveals its work in stages and asks you to check each one before it continues.",
-      "Crucially, both versions give the exact same answer. The only thing that changes is how much the tool asks you to engage with it. That lets us isolate one question cleanly: does being kept in the loop actually change how carefully people work?",
-    ],
+  tryIt: {
+    heading: "Try it",
+    body: "Pick a version, complete the short task, and at the end the tool shows you the behavioural signals it captured while you worked. This is the working instrument, not a mock-up of one.",
+    cta: "Try the demo",
   },
 
-  measure: {
-    heading: "How we measure it",
-    intro:
-      "The tool watches how you interact, not just what you conclude. Without interrupting the task, it captures signals that are hard to fake and easy to miss:",
-    bullets: [
-      "how long you pause before accepting an answer, compared with how long it should take you to read it",
+  system: {
+    heading: "What we built, and how we measure it",
+    built: [
+      "It is a working web application with two versions of the same AI research tool. One hands you a finished answer to read and accept. The other reveals its working in stages and asks you to verify each one before it continues.",
+      "Both versions give the identical answer. The only thing that changes is how much the tool asks you to engage, which lets us isolate one question cleanly: does being kept in the loop change how carefully people work?",
+    ],
+    comparison: {
+      caption: "The only difference between the two versions",
+      conditionA: {
+        label: "Version A",
+        title: "One step",
+        steps: ["You ask", "Finished answer"],
+        note: "You read it and accept it.",
+      },
+      conditionB: {
+        label: "Version B",
+        title: "Verified in stages",
+        steps: ["You ask", "Stage, verify", "Stage, verify", "Answer"],
+        note: "You check each stage before it continues.",
+      },
+    },
+    measureIntro:
+      "While you work, the tool quietly records how you behave, not just what you conclude. Without interrupting the task, it captures signals that are hard to fake and easy to miss:",
+    signals: [
+      "how long you pause before accepting an answer, against how long it should take to read it",
       "how much you revise and correct your own work",
-      "how varied or repetitive your patterns of activity are",
-      "how your cursor moves in the moments before you commit",
+      "how varied, or how repetitive, your activity is",
+      "how your cursor moves in the seconds before you commit",
     ],
-    outro:
-      "Together these act as a proxy for whether someone is genuinely evaluating the output or simply moving through it. When you try the demo, we will show you your own signals at the end, a concrete picture of something that is normally invisible.",
-    cta: "See it for yourself",
+    measureOutro:
+      "Together these act as a proxy for whether someone is genuinely evaluating the output or simply moving through it. This is the part a funder can try rather than take on trust: at the end of the demo, we show you your own signals, a concrete picture of something that is normally invisible.",
   },
 
-  funding: {
-    heading: "What funding enables",
+  problem: {
+    heading: "Why it matters",
     paragraphs: [
-      "The apparatus already exists and works, you can try it right now. What remains is running it at scale: a controlled study comparing the two versions across enough people to draw firm conclusions, with the behavioural measurement validated against how people describe their own experience.",
-      "This proposal seeks funding to run that study. The technical instrument, the measurement approach, and the experimental design are built and ready; the ask is for the resources to deploy them properly. The research would be conducted in collaboration with [named PI] as proposed collaborating Principal Investigator.",
-      "Most funding proposals ask you to imagine the thing that would be built. This one lets you use it first.",
+      "Most AI tools are built to remove friction: fewer clicks, faster answers, a finished result in one step. That is good for speed, and it may be quietly bad for judgement. When a tool hands you a polished answer with no visible working, the easy thing is to accept it, and the habit of checking fades.",
+      "People describe reaching a point where they are no longer really evaluating what the AI gives them, they are just passing it along. We call that state cognitive surrender. The full case, with the evidence behind it, is set out in the written proposal; this tool is how we propose to measure it.",
     ],
   },
 
