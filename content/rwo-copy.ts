@@ -95,6 +95,6 @@ export const RWO_COPY = {
     heading: "Next step",
     cta: "Try the demo",
     contact:
-      "To discuss this proposal or the underlying research, contact [contact].",
+      "To discuss this proposal or the underlying research, contact o.asielue@lis.ac.uk.",
   },
 } as const;
