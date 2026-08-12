@@ -36,12 +36,12 @@ export const RWO_COPY = {
   ask: {
     heading: "The ask",
     amount: "£1,089",
-    amountCaption: "to run the study the tool was built for",
+    amountCaption: "requested to run the study the tool was built for",
     lines: [
       "That funds recruiting 192 participants through Prolific to complete the task, split evenly between the two versions of the tool.",
-      "£947 covers the participants at the London Living Wage, inclusive of Prolific's academic fee; £142 is contingency.",
+      "£947 covers the participants at the London Living Wage, inclusive of Prolific's platform fee; £142 is contingency.",
       "The apparatus is live now, and you can try it on this page before any funding decision is made.",
-      "The study is proposed in collaboration with Professor Duncan Brumby as the prospective collaborating Principal Investigator; this partnership has not yet been confirmed.",
+      "I'm in early discussion with Professor Duncan Brumby, a UCL researcher whose work uses behavioural data to understand how people think, about advising as this scales. Nothing is confirmed yet.",
     ],
   },
 
