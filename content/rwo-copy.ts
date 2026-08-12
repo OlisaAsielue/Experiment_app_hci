@@ -41,6 +41,7 @@ export const RWO_COPY = {
       "That funds recruiting 192 participants through Prolific to complete the task, split evenly between the two versions of the tool.",
       "£947 covers the participants at the London Living Wage, inclusive of Prolific's academic fee; £142 is contingency.",
       "The apparatus is live now, and you can try it on this page before any funding decision is made.",
+      "The study is proposed in collaboration with Professor Duncan Brumby as the prospective collaborating Principal Investigator; this partnership has not yet been confirmed.",
     ],
   },
 
