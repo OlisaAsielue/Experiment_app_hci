@@ -28,7 +28,7 @@
 export const RWO_COPY = {
   hero: {
     headline:
-      "People are starting to trust AI without checking it. This project measures the moment that happens, and tests a way to stop it.",
+      "People are starting to trust AI without checking it. This project catches that moment as it happens, and tests whether a different way of designing the interface can stop it.",
     body: "As AI tools get faster and more fluent, the effort of checking their output starts to feel optional. The result is a quiet shift from doing the work to rubber-stamping it. We built a working tool that can detect that shift as it happens, and a design intervention that appears to slow it down.",
     cta: "Try the demo",
   },
